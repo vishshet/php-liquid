@@ -207,7 +207,7 @@ class AbstractBlock extends AbstractTag
 			case 'end':
 				throw new ParseException("'end' is not a valid delimiter for " . $this->blockName() . " tags. Use " . $this->blockDelimiter());
 			default:
-				throw new ParseException("Unknown tag $tag");
+				//throw new ParseException("Unknown tag $tag");
 		}
 	}
 

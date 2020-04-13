@@ -40,7 +40,7 @@ use Liquid\Template;
  *     Will loop over all the values of bar, including the template foo, passing a variable called foo
  *     with each value of bar
  */
-class TagInclude extends AbstractTag
+class TagSection extends AbstractTag
 {
 	/**
 	 * @var string The name of the template
@@ -81,7 +81,7 @@ class TagInclude extends AbstractTag
 		$regex = new Regexp('/("[^"]+"|\'[^\']+\'|[^\'"\s]+)(\s+(with|for)\s+(' . Liquid::get('QUOTED_FRAGMENT') . '+))?/');
 
 		if (!$regex->match($markup)) {
-			throw new ParseException("Error in tag 'include' - Valid syntax: include '[template]' (with|for) [object|collection]");
+			throw new ParseException("Error in tag 'section' - Valid syntax: section '[template]' (with|for) [object|collection]");
 		}
 
 		$unquoted = (strpos($regex->matches[1], '"') === false && strpos($regex->matches[1], "'") === false);
@@ -120,7 +120,7 @@ class TagInclude extends AbstractTag
 		}
 
 		// read the source of the template and create a new sub document
-		$source = $this->fileSystem->readTemplateFile($this->templateName, "include");
+		$source = $this->fileSystem->readTemplateFile($this->templateName, "section");
 
 		$cache = Template::getCache();
 
@@ -153,7 +153,7 @@ class TagInclude extends AbstractTag
 			return true;
 		}
 
-		$source = $this->fileSystem->readTemplateFile($this->templateName, "include");
+		$source = $this->fileSystem->readTemplateFile($this->templateName);
 
 		if (Template::getCache()->exists(md5($source)) && $this->hash === md5($source)) {
 			return false;

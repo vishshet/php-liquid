@@ -31,6 +31,9 @@ class Local implements FileSystem
 	 * @var string
 	 */
 	private $root;
+	private $include_path;
+	private $section_path;
+	private $template_path;
 
 	/**
 	 * Constructor
@@ -38,18 +41,27 @@ class Local implements FileSystem
 	 * @param string $root The root path for templates
 	 * @throws \Liquid\Exception\NotFoundException
 	 */
-	public function __construct($root)
+	public function __construct($root, $include_path = null, $section_path = null , $template_path = null )
 	{
 		// since root path can only be set from constructor, we check it once right here
 		if (!empty($root)) {
 			$realRoot = realpath($root);
+			$realInclude = realpath($include_path);
+			$realSection = realpath($section_path);
+			$realTemplate = realpath($template_path);
 			if ($realRoot === false) {
 				throw new NotFoundException("Root path could not be found: '$root'");
 			}
 			$root = $realRoot;
+			$include_path = $include_path == null ? $realRoot : $realInclude;
+			$section_path = $section_path == null ? $realRoot : $realSection;
+			$template_path = $template_path == null ? $realRoot : $realTemplate;
 		}
 
 		$this->root = $root;
+		$this->include_path = $include_path;
+		$this->section_path = $section_path;
+		$this->template_path = $template_path;
 	}
 
 	/**
@@ -59,9 +71,9 @@ class Local implements FileSystem
 	 *
 	 * @return string template content
 	 */
-	public function readTemplateFile($templatePath)
+	public function readTemplateFile($templatePath, $type = "")
 	{
-		return file_get_contents($this->fullPath($templatePath));
+		return file_get_contents($this->fullPath($templatePath, $type));
 	}
 
 	/**
@@ -73,7 +85,7 @@ class Local implements FileSystem
 	 * @throws \Liquid\Exception\NotFoundException
 	 * @return string
 	 */
-	public function fullPath($templatePath)
+	public function fullPath($templatePath, $type = "")
 	{
 		if (empty($templatePath)) {
 			throw new ParseException("Empty template name");
@@ -91,14 +103,22 @@ class Local implements FileSystem
 		$templateFile = basename($templatePath);
 
 		if (!Liquid::get('INCLUDE_ALLOW_EXT')) {
-			$templateFile = Liquid::get('INCLUDE_PREFIX') . $templateFile . '.' . Liquid::get('INCLUDE_SUFFIX');
+			$templateFile = $templateFile . '.' . Liquid::get('INCLUDE_SUFFIX');
 		}
 
-		$fullPath = join(DIRECTORY_SEPARATOR, array($this->root, $templateDir, $templateFile));
+		if ($type == "include") {
+			$fullPath = join(DIRECTORY_SEPARATOR, array($this->include_path, $templateDir, $templateFile));
+		}else if ($type == "section") {
+			$fullPath = join(DIRECTORY_SEPARATOR, array($this->section_path, $templateDir, $templateFile));
+		}else if ($type == "template") {
+			$fullPath = join(DIRECTORY_SEPARATOR, array($this->template_path, $templateDir, $templateFile));
+		}else{
+			$fullPath = join(DIRECTORY_SEPARATOR, array($this->root, $templateDir, $templateFile));
+		}
 
 		$realFullPath = realpath($fullPath);
 		if ($realFullPath === false) {
-			throw new NotFoundException("File not found: $fullPath");
+			throw new NotFoundException($type.$this->template_path."File not found: $fullPath");
 		}
 
 		if (strpos($realFullPath, $this->root) !== 0) {

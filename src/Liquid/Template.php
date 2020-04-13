@@ -36,6 +36,15 @@ class Template
 	 * @var FileSystem The file system to use for includes
 	 */
 	private $fileSystem;
+	/**
+	 * @var FileSystem The file system to use for includes
+	 */
+
+	private $includePath;
+	/**
+	 * @var FileSystem The file system to use for sections
+	 */
+	private $sectionPath;
 
 	/**
 	 * @var array Globally included filters
@@ -65,10 +74,10 @@ class Template
 	 *
 	 * @return Template
 	 */
-	public function __construct($path = null, $cache = null)
+	public function __construct($path = null, $cache = null, $include_path = null, $section_path = null, $template_path = null)
 	{
 		$this->fileSystem = $path !== null
-			? new LocalFileSystem($path)
+			? new LocalFileSystem($path, $include_path, $section_path, $template_path)
 			: null;
 
 		$this->setCache($cache);
@@ -228,7 +237,7 @@ class Template
 			throw new MissingFilesystemException("Could not load a template without an initialized file system");
 		}
 
-		return $this->parse($this->fileSystem->readTemplateFile($templatePath));
+		return $this->parse($this->includePath->readTemplateFile($templatePath));
 	}
 
 	/**

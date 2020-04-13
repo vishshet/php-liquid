@@ -40,7 +40,7 @@ use Liquid\Template;
  *     Will loop over all the values of bar, including the template foo, passing a variable called foo
  *     with each value of bar
  */
-class TagInclude extends AbstractTag
+class TagTemplate extends AbstractTag
 {
 	/**
 	 * @var string The name of the template
@@ -120,7 +120,7 @@ class TagInclude extends AbstractTag
 		}
 
 		// read the source of the template and create a new sub document
-		$source = $this->fileSystem->readTemplateFile($this->templateName, "include");
+		$source = $this->fileSystem->readTemplateFile($this->templateName, "template");
 
 		$cache = Template::getCache();
 
@@ -153,7 +153,7 @@ class TagInclude extends AbstractTag
 			return true;
 		}
 
-		$source = $this->fileSystem->readTemplateFile($this->templateName, "include");
+		$source = $this->fileSystem->readTemplateFile($this->templateName, "template");
 
 		if (Template::getCache()->exists(md5($source)) && $this->hash === md5($source)) {
 			return false;
