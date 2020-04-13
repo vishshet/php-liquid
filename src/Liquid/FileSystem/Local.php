@@ -103,7 +103,7 @@ class Local implements FileSystem
 		$templateFile = basename($templatePath);
 
 		if (!Liquid::get('INCLUDE_ALLOW_EXT')) {
-			$templateFile = $templateFile . '.' . Liquid::get('INCLUDE_SUFFIX');
+			$templateFile = Liquid::get('INCLUDE_PREFIX'). $templateFile . '.' . Liquid::get('INCLUDE_SUFFIX');
 		}
 
 		if ($type == "include") {
