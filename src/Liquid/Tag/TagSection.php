@@ -100,9 +100,9 @@ class TagSection extends AbstractTag
 			$this->collection = (isset($regex->matches[3])) ? ($regex->matches[3] == "for") : null;
 			$this->variable = (isset($regex->matches[4])) ? $regex->matches[4] : null;
 		}
-
+		//$this->variable = $fileSystem->getGlobalVariable("sections")[$this->templateName];
 		$this->extractAttributes($markup);
-
+		//$this->setAttribute('section', $fileSystem->getGlobalVariable("sections")[$this->templateName]);
 		parent::__construct($markup, $tokens, $fileSystem);
 	}
 
@@ -173,11 +173,17 @@ class TagSection extends AbstractTag
 	{
 		$result = '';
 		$variable = $context->get($this->variable);
+		$section = $context->get('section');
+		//dd($section['settings']['section']);
+		foreach ($section['settings']['sections'][$this->templateName]['settings'] as $key => $value) {
+			$section['settings'][$key] = $value;
+		}
+		$context->set('section', $section);
 
 		$context->push();
 
 		foreach ($this->attributes as $key => $value) {
-			$context->set($key, $context->get($value));
+			$context->set($key, $context->get($key));
 		}
 
 		if ($this->collection) {
@@ -190,8 +196,11 @@ class TagSection extends AbstractTag
 				$context->set($this->templateName, $variable);
 			}
 
+
 			$result .= $this->document->render($context);
 		}
+
+		//dd($result);
 
 		$context->pop();
 

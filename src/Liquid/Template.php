@@ -80,6 +80,7 @@ class Template
 			? new LocalFileSystem($path, $include_path, $section_path, $template_path)
 			: null;
 
+
 		$this->setCache($cache);
 	}
 
@@ -89,6 +90,14 @@ class Template
 	public function setFileSystem(FileSystem $fileSystem)
 	{
 		$this->fileSystem = $fileSystem;
+	}	
+
+	/**
+	 * @param FileSystem $fileSystem
+	 */
+	public function setGlobalVariable($key, $value)
+	{
+		$this->fileSystem->setGlobalVariable($key, $value);
 	}
 
 	/**
@@ -251,6 +260,8 @@ class Template
 	 */
 	public function render(array $assigns = array(), $filters = null, array $registers = array())
 	{
+
+		//$assign['section'] ;
 		$context = new Context($assigns, $registers);
 
 		if ($this->tickFunction) {

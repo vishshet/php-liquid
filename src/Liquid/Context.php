@@ -202,7 +202,7 @@ class Context
 	{
 		// This shouldn't happen
 		if (is_array($key)) {
-			throw new LiquidException("Cannot resolve arrays as key");
+			throw new LiquidException("Cannot resolve arrays as key".json_encode($key));
 		}
 
 		if (is_null($key) || $key == 'null') {

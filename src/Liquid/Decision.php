@@ -48,8 +48,8 @@ class Decision extends AbstractBlock
 				$value = (string) $value;
 			} else {
 				// toLiquid is handled in Context::variable
-				$class = get_class($value);
-				throw new RenderException("Value of type $class has no `toLiquid` nor `__toString` methods");
+				//$class = get_class($value);
+				//throw new RenderException("Value of type $class has no `toLiquid` nor `__toString` methods");
 			}
 		}
 

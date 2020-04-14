@@ -34,6 +34,7 @@ class Local implements FileSystem
 	private $include_path;
 	private $section_path;
 	private $template_path;
+	private $global_variable = [];
 
 	/**
 	 * Constructor
@@ -62,6 +63,30 @@ class Local implements FileSystem
 		$this->include_path = $include_path;
 		$this->section_path = $section_path;
 		$this->template_path = $template_path;
+	}
+
+	/**
+	 * Set Global Variable that can be accessed from Tags
+	 *
+	 * @param string $key
+	 * @param string $value
+	 *
+	 */
+	public function setGlobalVariable($key, $value = "")
+	{
+		$this->global_variable[$key] = $value;
+	}
+
+	/**
+	 * Set Global Variable that can be accessed from Tags
+	 *
+	 * @param string $key
+	 *
+	 * @return string t$value
+	 */
+	public function getGlobalVariable($key)
+	{
+		return $this->global_variable[$key];
 	}
 
 	/**

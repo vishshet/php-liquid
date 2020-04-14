@@ -86,6 +86,7 @@ abstract class AbstractTag
 		foreach ($matches as $match) {
 			$this->attributes[$match[0]] = $match[1];
 		}
+
 	}
 
 	/**
@@ -97,4 +98,12 @@ abstract class AbstractTag
 	{
 		return strtolower(get_class($this));
 	}
+
+
+	protected function setAttribute($key, $value)
+	{
+		$this->attributes[$key] = $value;
+	}
+
+
 }
