@@ -174,9 +174,11 @@ class TagSection extends AbstractTag
 		$result = '';
 		$variable = $context->get($this->variable);
 		$section = $context->get('section');
-		//dd($section['settings']['section']);
-		foreach ($section['settings']['sections'][$this->templateName]['settings'] as $key => $value) {
-			$section['settings'][$key] = $value;
+		//dd($section['settings']['sections']);
+		if(isset($section['settings']['sections'][$this->templateName])){
+			foreach ($section['settings']['sections'][$this->templateName]['settings'] as $key => $value) {
+				$section['settings'][$key] = $value;
+			}			
 		}
 		$context->set('section', $section);
 

@@ -164,7 +164,8 @@ class AbstractBlock extends AbstractTag
 			}
 
 			if (is_array($value)) {
-				throw new RenderException("Implicit rendering of arrays not supported. Use index operator.");
+				$value = json_encode($value);
+				//throw new RenderException("Implicit rendering of arrays not supported. Use index operator.");
 			}
 
 			$result .= $value;
@@ -203,9 +204,9 @@ class AbstractBlock extends AbstractTag
 	{
 		switch ($tag) {
 			case 'else':
-				throw new ParseException($this->blockName() . " does not expect else tag");
+				//throw new ParseException($this->blockName() . " does not expect else tag");
 			case 'end':
-				throw new ParseException("'end' is not a valid delimiter for " . $this->blockName() . " tags. Use " . $this->blockDelimiter());
+				//throw new ParseException("'end' is not a valid delimiter for " . $this->blockName() . " tags. Use " . $this->blockDelimiter());
 			default:
 				//throw new ParseException("Unknown tag $tag");
 		}

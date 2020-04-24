@@ -54,6 +54,20 @@ class TagFor extends AbstractBlock
 	 * @var string The type of the loop (collection or digit)
 	 */
 	private $type = 'collection';
+	
+	/**
+	 * Array holding the nodes to render for each logical block
+	 *
+	 * @var array
+	 */
+	private $nodelistHolders = array();
+
+	/**
+	 * Array holding the block type, block markup (conditions) and block nodelist
+	 *
+	 * @var array
+	 */
+	protected $blocks = array();
 
 	/**
 	 * Constructor
@@ -66,6 +80,11 @@ class TagFor extends AbstractBlock
 	 */
 	public function __construct($markup, array &$tokens, FileSystem $fileSystem = null)
 	{
+
+		$this->nodelist = & $this->nodelistHolders[count($this->blocks)];
+
+		array_push($this->blocks, array('if', $markup, &$this->nodelist));
+
 		parent::__construct($markup, $tokens, $fileSystem);
 
 		$syntaxRegexp = new Regexp('/(\w+)\s+in\s+(' . Liquid::get('VARIABLE_NAME') . ')/');
@@ -99,16 +118,24 @@ class TagFor extends AbstractBlock
 	 */
 	public function render(Context $context)
 	{
-		if (!isset($context->registers['for'])) {
-			$context->registers['for'] = array();
-		}
+		
+		foreach ($this->blocks as $block) {
+			if ($block[0] == 'else') {
+				return $this->renderAll($block[2], $context);
+				break;
+			}
+			if ($block[0] == 'for') {
+				if (!isset($context->registers['for'])) {
+					$context->registers['for'] = array();
+				}
 
-		if ($this->type == 'digit') {
-			return $this->renderDigit($context);
+				if ($this->type == 'digit') {
+					return $this->renderDigit($context);
+				}
+				// that's the default
+				return $this->renderCollection($context);
+			}
 		}
-
-		// that's the default
-		return $this->renderCollection($context);
 	}
 
 	private function renderCollection(Context $context)
@@ -229,4 +256,25 @@ class TagFor extends AbstractBlock
 
 		return $result;
 	}
+
+	/**
+	 * Handler for unknown tags, handle else tags
+	 *
+	 * @param string $tag
+	 * @param array $params
+	 * @param array $tokens
+	 */
+	public function unknownTag($tag, $params, array $tokens)
+	{
+		if ($tag == 'else' || $tag == 'elsif') {
+			// Update reference to nodelistHolder for this block
+			$this->nodelist = & $this->nodelistHolders[count($this->blocks) + 1];
+			$this->nodelistHolders[count($this->blocks) + 1] = array();
+
+			array_push($this->blocks, array($tag, $params, &$this->nodelist));
+		} else {
+			parent::unknownTag($tag, $params, $tokens);
+		}
+	}
+
 }

@@ -143,11 +143,15 @@ class Local implements FileSystem
 
 		$realFullPath = realpath($fullPath);
 		if ($realFullPath === false) {
-			throw new NotFoundException($type.$this->template_path."File not found: $fullPath");
+			//throw new NotFoundException("File not found: $fullPath");
+			$fullPath = join(DIRECTORY_SEPARATOR, array($this->include_path, $templateDir, "icon-box.liquid"));
+			return realpath($fullPath);
 		}
 
 		if (strpos($realFullPath, $this->root) !== 0) {
-			throw new NotFoundException("Illegal template full path: {$realFullPath} not under {$this->root}");
+			//throw new NotFoundException("Illegal template full path: {$realFullPath} not under {$this->root}");
+			$fullPath = join(DIRECTORY_SEPARATOR, array($this->include_path, $templateDir, "icon-box.liquid"));
+			return realpath($fullPath);
 		}
 
 		return $realFullPath;
