@@ -78,10 +78,10 @@ class TagSection extends AbstractTag
 	 */
 	public function __construct($markup, array &$tokens, FileSystem $fileSystem = null)
 	{
-		$regex = new Regexp('/("[^"]+"|\'[^\']+\'|[^\'"\s]+)(\s+(with|for)\s+(' . Liquid::get('QUOTED_FRAGMENT') . '+))?/');
+		$regex = new Regexp('/("[^"]+"|\'[^\']+\'|[^\'"\s]+)(\s+(with|as)\s+(' . Liquid::get('QUOTED_FRAGMENT') . '+))?/');
 
 		if (!$regex->match($markup)) {
-			throw new ParseException("Error in tag 'section' - Valid syntax: section '[template]' (with|for) [object|collection]");
+			throw new ParseException("Error in tag 'section' - Valid syntax: section '[template]' (with|as) [object|collection]");
 		}
 
 		$unquoted = (strpos($regex->matches[1], '"') === false && strpos($regex->matches[1], "'") === false);
@@ -97,7 +97,7 @@ class TagSection extends AbstractTag
 		$this->templateName = substr($regex->matches[1], $start, $len);
 
 		if (isset($regex->matches[1])) {
-			$this->collection = (isset($regex->matches[3])) ? ($regex->matches[3] == "for") : null;
+			$this->collection = (isset($regex->matches[3])) ? ($regex->matches[3] == "as") : null;
 			$this->variable = (isset($regex->matches[4])) ? $regex->matches[4] : null;
 		}
 		//$this->variable = $fileSystem->getGlobalVariable("sections")[$this->templateName];
@@ -173,14 +173,26 @@ class TagSection extends AbstractTag
 	{
 		$result = '';
 		$variable = $context->get($this->variable);
+		//print_r($variable);
 		$section = $context->get('section');
-		//dd($section['settings']['sections']);
-		if(isset($section['settings']['sections'][$this->templateName])){
-			foreach ($section['settings']['sections'][$this->templateName]['settings'] as $key => $value) {
-				$section['settings'][$key] = $value;
-			}			
+		$settings = $context->get('settings');
+		//dd($section['settings']['section']);
+
+		// if(array_key_exists($this->templateName, $section['settings']['sections'])){
+		// 	//$section['settings'] = [];
+		// 	foreach ($section['settings']['sections'][$this->templateName]['settings'] as $key => $value) {
+		// 		$section['settings'][$key] = $value;
+		// 	}
+		// }
+		if(array_key_exists('sections', $settings)){
+			//echo $this->templateName."<br>";
+			if(isset($variable)){
+				$context->set('section', $settings['sections']["".$variable]['settings']);
+			}else if(array_key_exists($this->templateName, $settings['sections'])){
+				$context->set('section', $settings['sections'][$this->templateName]['settings']);
+			}
 		}
-		$context->set('section', $section);
+		//$context->set('section', $section);
 
 		$context->push();
 
