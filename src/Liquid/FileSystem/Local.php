@@ -116,9 +116,7 @@ class Local implements FileSystem
 			throw new ParseException("Empty template name");
 		}
 
-		$nameRegex = Liquid::get('INCLUDE_ALLOW_EXT')
-		? new Regexp('/^[^.\/][a-zA-Z0-9_\.\/-]+$/')
-		: new Regexp('/^[^.\/][a-zA-Z0-9_\/-]+$/');
+		$nameRegex = new Regexp('/^[^.\/][a-zA-Z0-9_\.\/-]+$/');
 
 		if (!$nameRegex->match($templatePath)) {
 			throw new ParseException("Illegal template name '$templatePath'");
@@ -143,15 +141,11 @@ class Local implements FileSystem
 
 		$realFullPath = realpath($fullPath);
 		if ($realFullPath === false) {
-			//throw new NotFoundException("File not found: $fullPath");
-			$fullPath = join(DIRECTORY_SEPARATOR, array($this->include_path, $templateDir, "icon-box.liquid"));
-			return realpath($fullPath);
+			throw new NotFoundException($type.$this->template_path."File not found: $fullPath");
 		}
 
 		if (strpos($realFullPath, $this->root) !== 0) {
-			//throw new NotFoundException("Illegal template full path: {$realFullPath} not under {$this->root}");
-			$fullPath = join(DIRECTORY_SEPARATOR, array($this->include_path, $templateDir, "icon-box.liquid"));
-			return realpath($fullPath);
+			throw new NotFoundException("Illegal template full path: {$realFullPath} not under {$this->root}");
 		}
 
 		return $realFullPath;
