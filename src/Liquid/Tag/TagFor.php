@@ -39,6 +39,18 @@ class TagFor extends AbstractBlock
 	 * @var array The collection to loop over
 	 */
 	private $collectionName;
+	/**
+	 * Array holding the nodes to render for each logical block
+	 *
+	 * @var array
+	 */
+	private $nodelistHolders = array();
+
+	private $collection;
+
+	protected $blocks = array();
+
+	private $collectionSize;
 
 	/**
 	 * @var string The variable name to assign collection elements to
@@ -66,7 +78,12 @@ class TagFor extends AbstractBlock
 	 */
 	public function __construct($markup, array &$tokens, FileSystem $fileSystem = null)
 	{
+		$this->nodelist = & $this->nodelistHolders[count($this->blocks)];
+
+		array_push($this->blocks, array('For', $markup, &$this->nodelist));
+
 		parent::__construct($markup, $tokens, $fileSystem);
+
 
 		$syntaxRegexp = new Regexp('/(\w+)\s+in\s+(' . Liquid::get('VARIABLE_NAME') . ')/');
 
@@ -90,6 +107,19 @@ class TagFor extends AbstractBlock
 		}
 	}
 
+	public function unknownTag($tag, $params, array $tokens)
+	{
+		if ($tag == 'else' || $tag == 'elsif') {
+			// Update reference to nodelistHolder for this block
+			$this->nodelist = & $this->nodelistHolders[count($this->blocks) + 1];
+			$this->nodelistHolders[count($this->blocks) + 1] = array();
+
+			array_push($this->blocks, array($tag, $params, &$this->nodelist));
+		} else {
+			parent::unknownTag($tag, $params, $tokens);
+		}
+	}
+
 	/**
 	 * Renders the tag
 	 *
@@ -99,19 +129,31 @@ class TagFor extends AbstractBlock
 	 */
 	public function render(Context $context)
 	{
+
+		$this->collection = $context->get($this->collectionName);
 		if (!isset($context->registers['for'])) {
 			$context->registers['for'] = array();
 		}
-
-		if ($this->type == 'digit') {
-			return $this->renderDigit($context);
+		foreach ($this->blocks as $block) {
+			if ($block[0] == 'For') {
+				if ($this->type == 'digit') {
+					$result = $this->renderDigit($block[2], $context);
+				}else{
+					// that's the default
+					$result = $this->renderCollection($block[2], $context);
+				}
+			}else if ($block[0] == 'else') {
+				if($result == null){
+					$result = '';
+					$result = $this->renderAll($block[2], $context);
+				}
+			}
 		}
-
-		// that's the default
-		return $this->renderCollection($context);
+	
+		return $result;
 	}
 
-	private function renderCollection(Context $context)
+	private function renderCollection($nodelist, Context $context)
 	{
 		$collection = $context->get($this->collectionName);
 
@@ -120,7 +162,7 @@ class TagFor extends AbstractBlock
 		}
 
 		if (is_null($collection) || !is_array($collection) || count($collection) == 0) {
-			return '';
+			return null;
 		}
 
 		$range = array(0, count($collection));
@@ -163,7 +205,7 @@ class TagFor extends AbstractBlock
 					'last' => (int)($index == $length - 1)
 			));
 
-			$result .= $this->renderAll($this->nodelist, $context);
+			$result .= $this->renderAll($nodelist, $context);
 
 			$index++;
 
@@ -181,7 +223,7 @@ class TagFor extends AbstractBlock
 		return $result;
 	}
 
-	private function renderDigit(Context $context)
+	private function renderDigit($nodelist, Context $context)
 	{
 		$start = $this->start;
 		if (!is_integer($this->start)) {
@@ -199,6 +241,9 @@ class TagFor extends AbstractBlock
 		$result = '';
 		$index = 0;
 		$length = $range[1] - $range[0];
+		if ($length < 1) {
+			return null;
+		}
 		for ($i = $range[0]; $i <= $range[1]; $i++) {
 			$context->set($this->variableName, $i);
 			$context->set('forloop', array(
@@ -212,7 +257,7 @@ class TagFor extends AbstractBlock
 				'last'		=> (int)($index == $length - 1)
 			));
 
-			$result .= $this->renderAll($this->nodelist, $context);
+			$result .= $this->renderAll($nodelist, $context);
 
 			$index++;
 
