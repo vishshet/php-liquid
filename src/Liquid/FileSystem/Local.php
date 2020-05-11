@@ -116,7 +116,9 @@ class Local implements FileSystem
 			throw new ParseException("Empty template name");
 		}
 
-		$nameRegex = new Regexp('/^[^.\/][a-zA-Z0-9_\.\/-]+$/');
+		$nameRegex = Liquid::get('INCLUDE_ALLOW_EXT')
+		? new Regexp('/^[^.\/][a-zA-Z0-9_\.\/-]+$/')
+		: new Regexp('/^[^.\/][a-zA-Z0-9_\.\/-]+$/');
 
 		if (!$nameRegex->match($templatePath)) {
 			throw new ParseException("Illegal template name '$templatePath'");
@@ -141,11 +143,12 @@ class Local implements FileSystem
 
 		$realFullPath = realpath($fullPath);
 		if ($realFullPath === false) {
-			throw new NotFoundException($type.$this->template_path."File not found: $fullPath");
+			return "E:\project-code\\xampp\\htdocs\cartxshop\\cartx-ecomm-ui\\resources\\themes\\barberry\\snippets\\empty.liquid";
+			//throw new NotFoundException($type.$this->template_path."File not found: $fullPath");
 		}
 
 		if (strpos($realFullPath, $this->root) !== 0) {
-			throw new NotFoundException("Illegal template full path: {$realFullPath} not under {$this->root}");
+			//throw new NotFoundException("Illegal template full path: {$realFullPath} not under {$this->root}");
 		}
 
 		return $realFullPath;
