@@ -131,6 +131,7 @@ class Local implements FileSystem
 			$templateFile = Liquid::get('INCLUDE_PREFIX'). $templateFile . '.' . Liquid::get('INCLUDE_SUFFIX');
 		}
 
+		$empty_file_path  = join(DIRECTORY_SEPARATOR, array($this->include_path, $templateDir, "empty.liquid"));
 		if ($type == "include") {
 			$fullPath = join(DIRECTORY_SEPARATOR, array($this->include_path, $templateDir, $templateFile));
 		}else if ($type == "section") {
@@ -143,7 +144,7 @@ class Local implements FileSystem
 
 		$realFullPath = realpath($fullPath);
 		if ($realFullPath === false) {
-			return "E:\project-code\\xampp\\htdocs\cartxshop\\cartx-ecomm-ui\\resources\\themes\\barberry\\snippets\\empty.liquid";
+			return realpath($empty_file_path);
 			//throw new NotFoundException($type.$this->template_path."File not found: $fullPath");
 		}
 
