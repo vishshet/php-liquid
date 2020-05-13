@@ -116,6 +116,12 @@ class TagPaginate extends AbstractBlock
 			throw new RenderException("Missing collection with name '{$this->collectionName}'");
 		}
 
+		if (!is_numeric($this->numberItems)) {
+			$this->numberItems = $context->get($this->numberItems);
+			if (!is_numeric($this->numberItems)) {
+				$this->numberItems = 12;
+			}
+		}
 		// How many pages are there?
 		$this->collectionSize = count($this->collection);
 		$this->totalPages = ceil($this->collectionSize / $this->numberItems);

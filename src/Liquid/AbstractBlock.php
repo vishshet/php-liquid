@@ -62,6 +62,18 @@ class AbstractBlock extends AbstractTag
 		while (count($tokens)) {
 			$token = array_shift($tokens);
 
+		    $collection_match = '/collections\[(.*)\]/m';
+		    $collection_fix = '${1} | collections';
+		    $token = preg_replace($collection_match, $collection_fix, $token);
+		    
+		    $linklists_match = '/linklists\[(.*)\]/m';
+		    $linklists_fix = '${1} | linklists';
+		    $token = preg_replace($linklists_match, $linklists_fix, $token);
+
+		    $all_products_match = '/all_products\[(.*)\]/m';
+		    $all_products_fix = '${1} | all_products';
+		    $token = preg_replace($all_products_match, $all_products_fix, $token);
+
 			if ($startRegexp->match($token)) {
 				$this->whitespaceHandler($token);
 				if ($tagRegexp->match($token)) {
@@ -164,7 +176,11 @@ class AbstractBlock extends AbstractTag
 			}
 
 			if (is_array($value)) {
-				$value = json_encode($value);
+				if(isset($value['name'])){
+					$value = $value;
+				}else{
+					$value = json_encode($value);
+				}
 				//throw new RenderException("Implicit rendering of arrays not supported. Use index operator.");
 			}
 
