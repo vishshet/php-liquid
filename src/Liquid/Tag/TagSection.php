@@ -173,7 +173,6 @@ class TagSection extends AbstractTag
 	{
 		$result = '';
 		$variable = $context->get($this->variable);
-		//print_r($variable);
 		$section = $context->get('section');
 		$settings = $context->get('settings');
 		//dd($section['settings']['section']);
@@ -218,6 +217,22 @@ class TagSection extends AbstractTag
 
 		$context->pop();
 
-		return $result;
+		$source = $this->fileSystem->readTemplateFile($this->templateName, "section");
+		$schema = preg_match('/{% schema %}(.*?){% endschema %}/s', $source, $matches);
+		$classes = "";
+		if (isset($matches[1])) {
+            $schema = json_decode($matches[1],true);
+            if(array_key_exists('class', $schema)){
+                $classes = $schema['class'];
+                //echo $this->templateName."  ".$classes."<br>";
+            }
+        }
+        if(isset($variable)){
+        	$final_result = "<div id='shopify-section-".$variable."' class='shopify-section ".$classes."'>".$result."</div>";
+    	}else{
+    		$final_result = "<div id='shopify-section-".$this->templateName."' class='shopify-section ".$classes."'>".$result."</div>";
+    	}
+
+		return $final_result;
 	}
 }
