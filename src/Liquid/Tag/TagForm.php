@@ -65,7 +65,7 @@ class TagForm extends AbstractBlock
 			$action = '/account';
 		}
 
-		$form = "<form action='".$action."' method='post' ";
+		$form = "<form enctype='multipart/form-data' action='".$action."' method='post' ";
 
 		foreach ($form_attr as $k => $v) {
 			if($v == 'product' || $v == 'customer' || $k == 0){
