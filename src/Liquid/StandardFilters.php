@@ -106,8 +106,11 @@ class StandardFilters
 	 */
 	public static function divided_by($input, $operand)
 	{
-		return (float)$input;
-		//return (float)$input / (float)$operand;
+		//return (float)$input;
+		if($operand != 0 )
+			return (float)$input / (float)$operand;
+		else
+			return (float)$input;
 	}
 
 	
