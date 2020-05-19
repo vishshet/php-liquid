@@ -228,9 +228,9 @@ class TagSection extends AbstractTag
             }
         }
         if(isset($variable)){
-        	$final_result = "<div id='shopify-section-".$variable."' class='shopify-section ".$classes."'>".$result."</div>";
+        	$final_result = "<div id='cartx-section-".$variable."' class='cartx-section ".$classes."'>".$result."</div>";
     	}else{
-    		$final_result = "<div id='shopify-section-".$this->templateName."' class='shopify-section ".$classes."'>".$result."</div>";
+    		$final_result = "<div id='cartx-section-".$this->templateName."' class='cartx-section ".$classes."'>".$result."</div>";
     	}
 
 		return $final_result;
