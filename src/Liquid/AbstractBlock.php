@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Liquid package.
  *
@@ -8,31 +7,25 @@
  *
  * @package Liquid
  */
-
 namespace Liquid;
-
 use Liquid\Exception\ParseException;
 use Liquid\Exception\RenderException;
-
 /**
  * Base class for blocks.
  */
 class AbstractBlock extends AbstractTag
 {
 	const TAG_PREFIX = '\Liquid\Tag\Tag';
-
 	/**
 	 * @var AbstractTag[]|Variable[]|string[]
 	 */
 	protected $nodelist = array();
-
 	/**
 	 * Whenever next token should be ltrim'med.
 	 *
 	 * @var bool
 	 */
 	protected static $trimWhitespace = false;
-
 	/**
 	 * @return array
 	 */
@@ -40,7 +33,6 @@ class AbstractBlock extends AbstractTag
 	{
 		return $this->nodelist;
 	}
-
 	/**
 	 * Parses the given tokens
 	 *
@@ -54,26 +46,19 @@ class AbstractBlock extends AbstractTag
 		$startRegexp = new Regexp('/^' . Liquid::get('TAG_START') . '/');
 		$tagRegexp = new Regexp('/^' . Liquid::get('TAG_START') . Liquid::get('WHITESPACE_CONTROL') . '?\s*(\w+)\s*(.*?)' . Liquid::get('WHITESPACE_CONTROL') . '?' . Liquid::get('TAG_END') . '$/');
 		$variableStartRegexp = new Regexp('/^' . Liquid::get('VARIABLE_START') . '/');
-
 		$this->nodelist = array();
-
 		$tags = Template::getTags();
-
 		while (count($tokens)) {
 			$token = array_shift($tokens);
-
 		    $collection_match = '/collections\[(.*)\]/m';
 		    $collection_fix = '${1} | collections';
 		    $token = preg_replace($collection_match, $collection_fix, $token);
-		    
 		    $linklists_match = '/linklists\[(.*)\]/m';
 		    $linklists_fix = '${1} | linklists';
 		    $token = preg_replace($linklists_match, $linklists_fix, $token);
-
 		    $all_products_match = '/all_products\[(.*)\]/m';
 		    $all_products_fix = '${1} | all_products';
 		    $token = preg_replace($all_products_match, $all_products_fix, $token);
-
 			if ($startRegexp->match($token)) {
 				$this->whitespaceHandler($token);
 				if ($tagRegexp->match($token)) {
@@ -82,7 +67,6 @@ class AbstractBlock extends AbstractTag
 						$this->endTag();
 						return;
 					}
-
 					$tagName = null;
 					if (array_key_exists($tagRegexp->matches[1], $tags)) {
 						$tagName = $tags[$tagRegexp->matches[1]];
@@ -90,7 +74,6 @@ class AbstractBlock extends AbstractTag
 						$tagName = self::TAG_PREFIX . ucwords($tagRegexp->matches[1]);
 						$tagName = (class_exists($tagName) === true) ? $tagName : null;
 					}
-
 					if ($tagName !== null) {
 						$this->nodelist[] = new $tagName($tagRegexp->matches[2], $tokens, $this->fileSystem);
 						if ($tagRegexp->matches[1] == 'extends') {
@@ -110,15 +93,12 @@ class AbstractBlock extends AbstractTag
 				if (self::$trimWhitespace) {
 					$token = ltrim($token);
 				}
-
 				self::$trimWhitespace = false;
 				$this->nodelist[] = $token;
 			}
 		}
-
 		$this->assertMissingDelimitation();
 	}
-
 	/**
 	 * Handle the whitespace.
 	 *
@@ -136,14 +116,12 @@ class AbstractBlock extends AbstractTag
 				$this->nodelist[key($this->nodelist)] = rtrim($previousToken);
 			}
 		}
-
 		/*
 		 * This assumes that TAG_END is always '%}', and a whitespace control indicator
 		 * is exactly one character long, on a third position from the end.
 		 */
 		self::$trimWhitespace = mb_substr($token, -3, 1) === Liquid::get('WHITESPACE_CONTROL');
 	}
-
 	/**
 	 * Render the block.
 	 *
@@ -152,10 +130,9 @@ class AbstractBlock extends AbstractTag
 	 * @return string
 	 */
 	public function render(Context $context)
-	{
+	{	
 		return $this->renderAll($this->nodelist, $context);
 	}
-
 	/**
 	 * Renders all the given nodelist's nodes
 	 *
@@ -167,14 +144,12 @@ class AbstractBlock extends AbstractTag
 	protected function renderAll(array $list, Context $context)
 	{
 		$result = '';
-
 		foreach ($list as $token) {
 			if (method_exists($token, 'render')) {
 				$value = $token->render($context);
 			} else {
 				$value = $token;
 			}
-
 			if (is_array($value)) {
 				if(isset($value['name'])){
 					$value = $value;
@@ -184,21 +159,22 @@ class AbstractBlock extends AbstractTag
 				//throw new RenderException("Implicit rendering of arrays not supported. Use index operator.");
 			}
 
+			$linklists_match = '/linklists\[(.*)\]/m';
+		    $linklists_fix = '${1} | linklists';
+		    $value = preg_replace($linklists_match, $linklists_fix, $value);
+		    
 			$result .= $value;
-
 			if (isset($context->registers['break'])) {
 				break;
 			}
 			if (isset($context->registers['continue'])) {
 				break;
 			}
-
 			$context->tick();
 		}
 
 		return $result;
 	}
-
 	/**
 	 * An action to execute when the end tag is reached
 	 */
@@ -206,7 +182,6 @@ class AbstractBlock extends AbstractTag
 	{
 		// Do nothing by default
 	}
-
 	/**
 	 * Handler for unknown tags
 	 *
@@ -227,7 +202,6 @@ class AbstractBlock extends AbstractTag
 				//throw new ParseException("Unknown tag $tag");
 		}
 	}
-
 	/**
 	 * This method is called at the end of parsing, and will throw an error unless
 	 * this method is subclassed, like it is for Document
@@ -239,7 +213,6 @@ class AbstractBlock extends AbstractTag
 	{
 		throw new ParseException($this->blockName() . " tag was never closed");
 	}
-
 	/**
 	 * Returns the string that delimits the end of the block
 	 *
@@ -249,7 +222,6 @@ class AbstractBlock extends AbstractTag
 	{
 		return "end" . $this->blockName();
 	}
-
 	/**
 	 * Returns the name of the block
 	 *
@@ -260,7 +232,6 @@ class AbstractBlock extends AbstractTag
 		$reflection = new \ReflectionClass($this);
 		return str_replace('tag', '', strtolower($reflection->getShortName()));
 	}
-
 	/**
 	 * Create a variable for the given token
 	 *
@@ -275,7 +246,6 @@ class AbstractBlock extends AbstractTag
 		if ($variableRegexp->match($token)) {
 			return new Variable($variableRegexp->matches[1]);
 		}
-
 		throw new ParseException("Variable $token was not properly terminated");
 	}
 }
