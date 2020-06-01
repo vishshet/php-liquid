@@ -122,6 +122,9 @@ class TagPaginate extends AbstractBlock
 				$this->numberItems = 12;
 			}
 		}
+		//dd($this->collection);
+		//$numberItems = $context->get($this->numberItems);
+		//dd($numberItems);
 		// How many pages are there?
 		$this->collectionSize = count($this->collection);
 		$this->totalPages = ceil($this->collectionSize / $this->numberItems);
@@ -141,8 +144,19 @@ class TagPaginate extends AbstractBlock
 
 		// Sets the collection if it's a key of another collection (ie search.results, collection.products, blog.articles)
 		$segments = explode('.', $this->collectionName);
+
+		//carry other values too
+		$new_collection = $context->get($segments[0]);
+
+		if($segments[0] === 'search' ){
+			$new_collection[$segments[1]] = $paginatedCollection;
+		}else{
+			$new_collection->{$segments[1]} = $paginatedCollection;
+		}
+
+		//dd($new_collection);
 		if (count($segments) == 2) {
-			$context->set($segments[0], array($segments[1] => $paginatedCollection));
+			$context->set($segments[0], $new_collection);
 		} else {
 			$context->set($this->collectionName, $paginatedCollection);
 		}
@@ -171,7 +185,6 @@ class TagPaginate extends AbstractBlock
 				$pageRequestKey => $this->currentPage + 1,
 			]);
 		}
-
 		$context->set('paginate', $paginate);
 
 		$result = parent::render($context);

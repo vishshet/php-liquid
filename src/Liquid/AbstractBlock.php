@@ -150,9 +150,12 @@ class AbstractBlock extends AbstractTag
 			} else {
 				$value = $token;
 			}
+			if ($value == null || $value == "") {
+				$value = "-";
+			}
 			if (is_array($value)) {
 				if(isset($value['name'])){
-					$value = $value;
+					$value = $value['name'];
 				}else{
 					$value = json_encode($value);
 				}
