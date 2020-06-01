@@ -150,15 +150,8 @@ class AbstractBlock extends AbstractTag
 			} else {
 				$value = $token;
 			}
-			if ($value == null || $value == "") {
-				$value = "-";
-			}
 			if (is_array($value)) {
-				if(isset($value['name'])){
-					$value = $value['name'];
-				}else{
-					$value = json_encode($value);
-				}
+				$value = json_encode($value);
 				//throw new RenderException("Implicit rendering of arrays not supported. Use index operator.");
 			}
 
