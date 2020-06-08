@@ -83,7 +83,13 @@ class TagInclude extends AbstractTag
 	 */
 	public function __construct($markup, array &$tokens, FileSystem $fileSystem = null)
 	{
-		$regex = new Regexp('/("[^"]+"|\'[^\']+\'|[^\'"\s]+)(\s*+(.|with|for)\s+(' . Liquid::get('QUOTED_FRAGMENT') . '+)\s+(' . Liquid::get('QUOTED_FRAGMENT') . '+))?/');
+		
+
+
+		$regex = new Regexp('/("[^"]+"|\'[^\']+\'|[^\'"\s]+)(\s+(with|for)\s+(' . Liquid::get('QUOTED_FRAGMENT') . '+))?/');
+		if (strpos($markup, ",") > 0) {
+			$regex = new Regexp('/("[^"]+"|\'[^\']+\'|[^\'"\s]+)(\s*+(with|for)\s+(' . Liquid::get('QUOTED_FRAGMENT') . '+)\s+(' . Liquid::get('QUOTED_FRAGMENT') . '+))?/');
+		}
 
 		if (!$regex->match($markup)) {
 			throw new ParseException("Error in tag 'include' - Valid syntax: include '[template]' (with|for) [object|collection]");
@@ -104,7 +110,7 @@ class TagInclude extends AbstractTag
 			$this->collection = (isset($regex->matches[3])) ? ($regex->matches[3] == "for") : null;
 			$this->variable = (isset($regex->matches[4])) ? $regex->matches[4] : null;
 		}
-		if (isset($regex->matches[4])) {
+		if (isset($regex->matches[4]) && isset($regex->matches[5])) {
 			$this->params[str_replace(":", "", $regex->matches[4])] = str_replace("'", "", $regex->matches[5]);
 		}
 
