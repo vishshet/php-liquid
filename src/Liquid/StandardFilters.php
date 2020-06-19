@@ -535,15 +535,17 @@ class StandardFilters
 		if ($property === null) {
 			asort($input);
 		} else {
-			$first = reset($input);
-			if ($first !== false && is_array($first) && array_key_exists($property, $first)) {
-				uasort($input, function ($a, $b) use ($property) {
-					if ($a[$property] == $b[$property]) {
-						return 0;
-					}
+			if (is_iterable($input)){
+				$first = reset($input);
+				if ($first !== false && is_array($first) && array_key_exists($property, $first)) {
+					uasort($input, function ($a, $b) use ($property) {
+						if ($a[$property] == $b[$property]) {
+							return 0;
+						}
 
-					return $a[$property] < $b[$property] ? -1 : 1;
-				});
+						return $a[$property] < $b[$property] ? -1 : 1;
+					});
+				}
 			}
 		}
 
