@@ -98,7 +98,11 @@ class Local implements FileSystem
 	 */
 	public function readTemplateFile($templatePath, $type = "")
 	{
-		return file_get_contents($this->fullPath($templatePath, $type));
+		if (file_exists($this->fullPath($templatePath, $type))) {
+			return file_get_contents($this->fullPath($templatePath, $type));
+		}else{
+			return "";
+		}
 	}
 
 	/**
