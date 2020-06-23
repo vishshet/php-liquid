@@ -194,12 +194,14 @@ class TagSection extends AbstractTag
 		// 		$section['settings'][$key] = $value;
 		// 	}
 		// }
-		if(array_key_exists('sections', $settings)){
-			//echo $this->templateName."<br>";
-			if(isset($variable)){
-				$context->set('section', $settings['sections']["".$variable]['settings']);
-			}else if(array_key_exists($this->templateName, $settings['sections'])){
-				$context->set('section', $settings['sections'][$this->templateName]['settings']);
+		if (!is_null($settings)) {
+			if(array_key_exists('sections', $settings)){
+				//echo $this->templateName."<br>";
+				if(isset($variable)){
+					$context->set('section', $settings['sections']["".$variable]['settings']);
+				}else if(array_key_exists($this->templateName, $settings['sections'])){
+					$context->set('section', $settings['sections'][$this->templateName]['settings']);
+				}
 			}
 		}
 		//$context->set('section', $section);
