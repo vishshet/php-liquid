@@ -204,7 +204,7 @@ class Template
 	 *
 	 * @return Template
 	 */
-	public function parse($source, $assigns = null)
+	public function parse($source, $assigns = array())
 	{
 		self::$context = new Context($assigns);
 		if (!self::$cache) {
