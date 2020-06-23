@@ -65,6 +65,10 @@ class Template
 	 * @var Cache
 	 */
 	private static $cache;
+	/**
+	 * @var Context
+	 */
+	private static $context;
 
 	/**
 	 * Constructor.
@@ -200,8 +204,9 @@ class Template
 	 *
 	 * @return Template
 	 */
-	public function parse($source)
+	public function parse($source, $assigns = null)
 	{
+		self::$context = new Context($assigns);
 		if (!self::$cache) {
 			return $this->parseAlways($source);
 		}
@@ -263,6 +268,7 @@ class Template
 
 		//$assign['section'] ;
 		$context = new Context($assigns, $registers);
+		self::$context = new Context($assigns, $registers);
 
 		if ($this->tickFunction) {
 			$context->setTickFunction($this->tickFunction);
@@ -286,5 +292,10 @@ class Template
 		}
 
 		return $this->root->render($context);
+	}
+
+
+	public static function getContext(){
+		return self::$context;
 	}
 }

@@ -121,7 +121,18 @@ class TagSection extends AbstractTag
 
 		// read the source of the template and create a new sub document
 		$source = $this->fileSystem->readTemplateFile($this->templateName, "section");
-
+		$include_tag = preg_match('/{% include (.*?) %}/s', $source, $matches);
+		$context = Template::getContext();
+		if (isset($matches[1])) {
+			if (isset($this->variable)) {
+				$key = "settings.sections.".$this->variable.".settings.".str_replace("section.", "", $matches[1]);
+			}else{
+				$key = "settings.sections.".$this->templateName.".settings.".str_replace("section.", "", $matches[1]);	
+			}
+			if ($context->get($key) !== null) {
+				$source = str_replace($matches[1], $context->get($key), $source);
+			}
+		}
 		$cache = Template::getCache();
 
 		if (!$cache) {
