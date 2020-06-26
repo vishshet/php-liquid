@@ -177,6 +177,7 @@ class TagPaginate extends AbstractBlock
 			$paginate['previous']['url'] = $this->currentUrl($context, [
 				$pageRequestKey => $this->currentPage - 1,
 			]);
+			$paginate['previous']['is_link'] = true;
 		}
 
 		if ($this->currentPage < $this->totalPages) {
@@ -184,6 +185,7 @@ class TagPaginate extends AbstractBlock
 			$paginate['next']['url'] = $this->currentUrl($context, [
 				$pageRequestKey => $this->currentPage + 1,
 			]);
+			$paginate['next']['is_link'] = true;
 		}
 		$context->set('paginate', $paginate);
 
@@ -206,8 +208,8 @@ class TagPaginate extends AbstractBlock
 	public function currentUrl($context, $queryPart = [])
 	{
 		// From here we have $url->path and $url->query
-		$url = (object) parse_url($context->get('REQUEST_URI'));
-
+		//$url = (object) parse_url($context->get('REQUEST_URI'));
+		$url = (object) parse_url($_SERVER['REQUEST_URI']);
 		// Let's merge the query part
 		if (isset($url->query)) {
 			parse_str($url->query, $url->query);
@@ -219,7 +221,7 @@ class TagPaginate extends AbstractBlock
 		$url->query = http_build_query($url->query);
 
 		$scheme = $context->get('HTTPS') == 'on' ? 'https' : 'http';
-
-		return "$scheme://{$context->get('HTTP_HOST')}{$url->path}?{$url->query}";
+		return "{$url->path}?{$url->query}";
+		//return "$scheme://{$context->get('HTTP_HOST')}{$url->path}?{$url->query}";
 	}
 }
